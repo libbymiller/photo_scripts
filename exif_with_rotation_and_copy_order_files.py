@@ -55,10 +55,10 @@ def get_dt_components(dt):
           d = dd[2]
 
           h = tt[0]
-          mo = tt[1]
+          mi = tt[1]
           s = tt[2]
 
-          return y,m,d
+          return y,m,d,h,mi,s
 
 
 
@@ -100,24 +100,29 @@ def do_stuff(fp):
         if(dt != None):
           print("got dt "+str(dt))
           last_dt = dt
-          y,m,d = get_dt_components(dt)
+          y,m,d,h,mi,s = get_dt_components(dt)
           d_path = make_path(date_path_root,y,m,d)
 
           # now copy the file to the right place
           fff = fp.split("/")
           file_name = fff[len(fff)-1]
+          print "file_name "+file_name
+          new_file_name = str(y)+str(m)+str(d)+str(h)+str(mi)+str(s)+"_"+file_name
+          print "new_file_name "+new_file_name
 
           if(img):
              print("got img "+fp)
-             print("saving image to "+os.path.join(d_path,file_name))
-             img.save(os.path.join(d_path,file_name))
+             print("saving image to "+os.path.join(d_path,new_file_name))
+#             img.save(os.path.join(d_path,file_name))
+             img.save(os.path.join(d_path,new_file_name))
           else:
              pattern_aae = re.compile("AAE")
              if(pattern_aae.search(fp)):
                pass
              else:
                print("copying over "+fp+" to "+d_path)
-               shutil.copy2(fp, d_path) 
+#               shutil.copy2(fp, d_path) 
+               shutil.copy2(fp, os.path.join(d_path,new_file_name)) 
 
           # make everything public
           print("making things public in "+fp) 
@@ -139,7 +144,8 @@ else:
 for root, dirs, files in os.walk(sys.argv[1]):
 
     now = dati.datetime.now()
-    ago = now-dati.timedelta(minutes=30)
+    ago = now-dati.timedelta(minutes=90)
+#    ago = now-dati.timedelta(days=360)
 
     path = root.split(os.sep)
     for file in files:
@@ -162,11 +168,13 @@ for root, dirs, files in os.walk(sys.argv[1]):
 
 print("Uploading photos to "+server)
 result = call(["scp", "-r", date_path_root, user+"@"+server+":"])
+
 print(result)
 
 print("running remote script")
 
 result = call(["ssh", user+"@"+server, "python", "process_photos.py"])
+
 print(result)
 
 # finally remove the contents of tmp_photos

@@ -7,7 +7,7 @@ The idea is:
 
  * use whatever software to put your photo on your laptop
  * put ```process_photos.py``` on your server with cert-based access
- * point ```exif_with_rotation_and_copy.py``` at the directory, e.g.
+ * point ```exif_with_rotation_and_copy_order_files.py ``` at the directory, e.g.
 
 ```exif_with_rotation_and_copy.py photos/20180601/```
 
@@ -16,7 +16,7 @@ them and creates index files for month and date.
 
 # todo
 
- * preserve date ordering on index pages
+ * preserve date ordering on 'latest' pages
 
 
 
