@@ -9,14 +9,14 @@ The idea is:
  * put ```process_photos.py``` on your server with cert-based access
  * point ```exif_with_rotation_and_copy_order_files.py ``` at the directory, e.g.
 
-```exif_with_rotation_and_copy.py photos/20180601/```
+```exif_with_rotation_and_copy_order_files.py photos/20180601/```
 
 It pulls out the date from the exif for jpgs and ignores the rest, uploads 
 them and creates index files for month and date.
 
 # todo
 
- * preserve date ordering on 'latest' pages
+ * preserve date ordering on 'latest' and monthly pages
 
 
 
