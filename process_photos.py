@@ -14,6 +14,9 @@ import datetime as dt
 new_photos_path = "tmp_photos"
 photos_path = "/var/www/html/photos"
 
+## fix your domain
+domain = "http://example.com/"
+
 def make_path(date_path_root):
 
      if(os.path.exists(date_path_root)):
@@ -90,9 +93,9 @@ def create_latest_atom_file(list_of_images, photo_root):
   file.write('<feed xmlns="http://www.w3.org/2005/Atom">\n')
   file.write('<title>Libby\'s latest photos</title>\n')
   file.write('<subtitle></subtitle>\n')
-  file.write('<link rel="alternate" type="text/html" href="http;//photos.nicecupoftea.org/latest.html" />\n')
-  file.write('<link rel="self" type="application/atom+xml" href="http://photos.nicecupoftea.org/latest.xml" />\n')
-  file.write('<id>http://photos.nicecupoftea.org/latest.xml</id>\n')
+  file.write('<link rel="alternate" type="text/html" href="'+domain+'latest.html" />\n')
+  file.write('<link rel="self" type="application/atom+xml" href="'+domain+'latest.xml" />\n')
+  file.write('<id>'+domain+'latest.xml</id>\n')
   file.write('<updated>'+str(dt.datetime.now())+'</updated>\n')
 
 
@@ -107,12 +110,12 @@ def create_latest_atom_file(list_of_images, photo_root):
     pattern_aae = re.compile("AAE")
 
     if(pattern_mov.search(img_path.lower()) or pattern_mp4.search(img_path.lower())):
-       s = '<entry>\n    <title>'+img_path+'</title>\n    <id>'+img_path+'</id>\n    <published>'+str(dt.datetime.now())+'</published>\n    <updated>'+str(dt.datetime.now())+'</updated>\n    <author><name>Libby</name></author>\n    <content type="html" xml:base="http://photos.nicecupoftea.org" xml:lang="en">\n       <![CDATA[<video src="http://photos.nicecupoftea.org/'+img_path+'" width="500px" controls/>]]>\n    </content>\n    </entry>\n'
+       s = '<entry>\n    <title>'+img_path+'</title>\n    <id>'+img_path+'</id>\n    <published>'+str(dt.datetime.now())+'</published>\n    <updated>'+str(dt.datetime.now())+'</updated>\n    <author><name>Libby</name></author>\n    <content type="html" xml:base="'+domain+'" xml:lang="en">\n       <![CDATA[<video src="'+domain+''+img_path+'" width="500px" controls/>]]>\n    </content>\n    </entry>\n'
     else:
       if(pattern_aae.search(img_path)):
          pass
       else:
-         s = '<entry>\n    <title>'+img_path+'</title>\n    <id>'+img_path+'</id>\n    <published>'+str(dt.datetime.now())+'</published>\n    <updated>'+str(dt.datetime.now())+'</updated>\n    <author><name>Libby</name></author>\n    <content type="html" xml:base="http://photos.nicecupoftea.org" xml:lang="en">\n       <![CDATA[<img src="http://photos.nicecupoftea.org/'+img_path+'" width="500px"/>]]>\n    </content>\n    </entry>\n'
+         s = '<entry>\n    <title>'+img_path+'</title>\n    <id>'+img_path+'</id>\n    <published>'+str(dt.datetime.now())+'</published>\n    <updated>'+str(dt.datetime.now())+'</updated>\n    <author><name>Libby</name></author>\n    <content type="html" xml:base="'+domain+'" xml:lang="en">\n       <![CDATA[<img src="'+domain+''+img_path+'" width="500px"/>]]>\n    </content>\n    </entry>\n'
     file.write(s)
 
   file.write("</feed>\n")
