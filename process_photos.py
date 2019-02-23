@@ -1,4 +1,5 @@
 import sys
+import stat
 import os
 import re
 import shutil
@@ -12,7 +13,6 @@ import datetime as dt
 
 new_photos_path = "tmp_photos"
 photos_path = "/var/www/html/photos"
-remove_server = "http://photos.example.com"
 
 def make_path(date_path_root):
 
@@ -26,14 +26,12 @@ def make_path(date_path_root):
 def create_index_files(list_of_dirs, photo_root):
   print(list_of_dirs)
   for fp in list_of_dirs:
- #   print(fp)
-#    print(os.listdir(fp))
+
     file = open(os.path.join(fp, "index.html"),'w+') 
     file.write("<html>\n<body>\n<style>img { width:500; image-orientation: from-image;} figure { display: inline-block;}</style>\n")
     for root, dirs, files in os.walk(fp):
-
-      for i in files:
-        print("foudn file "+i)
+      for i in sorted(files):
+        print("found file "+i)
         path = os.path.realpath(os.path.join(root,i))
 
         pattern_aae = re.compile("AAE")
@@ -52,7 +50,6 @@ def create_index_files(list_of_dirs, photo_root):
           else:
             file.write("<figure>\n<img src='"+ii+"'/>\n")
 
-#          file.write("<figure>\n<a href='"+ii+"'><img src='"+ii+"'/></a>\n")
           file.write("<figcaption><a href='"+dd+"'>source</a></figcaption>\n</figure>\n")
     file.write("</body></html>")
     file.close()
@@ -61,7 +58,7 @@ def create_latest_index_file(list_of_images, photo_root):
   print(list_of_images)
   file = open(os.path.join(photo_root, "latest.html"),'w+') 
   file.write("<html>\n<body>\n<style>img { width:500; } figure { display: inline-block;}</style>\n")
-  for fp in list_of_images:
+  for fp in sorted(list_of_images):
     print(fp)
 
     img_path = fp.replace(photo_root,"")
@@ -93,13 +90,13 @@ def create_latest_atom_file(list_of_images, photo_root):
   file.write('<feed xmlns="http://www.w3.org/2005/Atom">\n')
   file.write('<title>Libby\'s latest photos</title>\n')
   file.write('<subtitle></subtitle>\n')
-  file.write('<link rel="alternate" type="text/html" href="'+server+'/latest.html" />\n')
-  file.write('<link rel="self" type="application/atom+xml" href="'+server+'/latest.xml" />\n')
-  file.write('<id>'+server+'/latest.xml</id>\n')
+  file.write('<link rel="alternate" type="text/html" href="http;//photos.nicecupoftea.org/latest.html" />\n')
+  file.write('<link rel="self" type="application/atom+xml" href="http://photos.nicecupoftea.org/latest.xml" />\n')
+  file.write('<id>http://photos.nicecupoftea.org/latest.xml</id>\n')
   file.write('<updated>'+str(dt.datetime.now())+'</updated>\n')
 
 
-  for fp in list_of_images:
+  for fp in sorted(list_of_images):
     print(fp)
     img_path = fp.replace(photo_root,"")
     print("img_path is "+img_path)
@@ -110,12 +107,12 @@ def create_latest_atom_file(list_of_images, photo_root):
     pattern_aae = re.compile("AAE")
 
     if(pattern_mov.search(img_path.lower()) or pattern_mp4.search(img_path.lower())):
-       s = '<entry>\n    <title>'+img_path+'</title>\n    <id>'+img_path+'</id>\n    <published>'+str(dt.datetime.now())+'</published>\n    <updated>'+str(dt.datetime.now())+'</updated>\n    <author><name>Libby</name></author>\n    <content type="html" xml:base="'+server+'" xml:lang="en">\n       <![CDATA[<video src="'+server+'/'+img_path+'" width="500px" controls/>]]>\n    </content>\n    </entry>\n'
+       s = '<entry>\n    <title>'+img_path+'</title>\n    <id>'+img_path+'</id>\n    <published>'+str(dt.datetime.now())+'</published>\n    <updated>'+str(dt.datetime.now())+'</updated>\n    <author><name>Libby</name></author>\n    <content type="html" xml:base="http://photos.nicecupoftea.org" xml:lang="en">\n       <![CDATA[<video src="http://photos.nicecupoftea.org/'+img_path+'" width="500px" controls/>]]>\n    </content>\n    </entry>\n'
     else:
       if(pattern_aae.search(img_path)):
          pass
       else:
-         s = '<entry>\n    <title>'+img_path+'</title>\n    <id>'+img_path+'</id>\n    <published>'+str(dt.datetime.now())+'</published>\n    <updated>'+str(dt.datetime.now())+'</updated>\n    <author><name>Libby</name></author>\n    <content type="html" xml:base="'+server+'" xml:lang="en">\n       <![CDATA[<img src="'+server+'/'+img_path+'" width="500px"/>]]>\n    </content>\n    </entry>\n'
+         s = '<entry>\n    <title>'+img_path+'</title>\n    <id>'+img_path+'</id>\n    <published>'+str(dt.datetime.now())+'</published>\n    <updated>'+str(dt.datetime.now())+'</updated>\n    <author><name>Libby</name></author>\n    <content type="html" xml:base="http://photos.nicecupoftea.org" xml:lang="en">\n       <![CDATA[<img src="http://photos.nicecupoftea.org/'+img_path+'" width="500px"/>]]>\n    </content>\n    </entry>\n'
     file.write(s)
 
   file.write("</feed>\n")
@@ -129,12 +126,12 @@ list_of_images = []
 for root, dirs, files in os.walk(new_photos_path):
 
    path = root.split(os.sep)
-   for file in files:
+   for file in sorted(files):
      if not file.startswith("."):
          fp = os.path.join(root, file)
+
          fp_tmp = fp.replace(new_photos_path,"")
          print(fp_tmp)
-#        print(os.path.basename(fp_tmp))
          fp_tmp2 = os.path.split(fp_tmp)[0]
 
          fp_new = photos_path + fp_tmp
@@ -144,9 +141,15 @@ for root, dirs, files in os.walk(new_photos_path):
 
          if(os.path.exists(just_dir)):
            print "exists - not making it "+just_dir
+           for im in os.listdir(just_dir):
+             os.chmod(os.path.join(just_dir, im), 0o777)
+
          else:
            print "doesn't exist - making it "+just_dir
            make_path(just_dir)
+
+         # fix permissions
+         os.chmod(just_dir, 0o777)
 
          # now copy the file to the right place
 
@@ -154,6 +157,9 @@ for root, dirs, files in os.walk(new_photos_path):
 
          dirs = fp_tmp2.split("/")
          shutil.copy2(fp, fp_new)
+
+         # now ensure mod is read
+         os.chmod(fp_new, 0o777)
 
          list_of_images.append(fp_new)
 
